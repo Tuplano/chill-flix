@@ -9,6 +9,9 @@ export const tmdbApi = axios.create({
     'Content-Type': 'application/json',
     Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`,
   },
+  params: {
+    include_adult: false,
+  },
 });
 
 tmdbApi.interceptors.response.use(
@@ -22,6 +25,7 @@ tmdbApi.interceptors.response.use(
   }
 );
 
-export const api = {
+export const tmdbClient = {
   get: <T>(url: string, config?: any): Promise<T> => tmdbApi.get(url, config) as Promise<T>,
 };
+

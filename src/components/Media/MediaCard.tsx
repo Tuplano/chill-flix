@@ -1,26 +1,31 @@
 import { Movie, TVShow } from '@/types';
 import { cn } from '@/lib/utils';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Link } from '@tanstack/react-router';
 
 interface MediaCardProps {
   item: Movie | TVShow;
   className?: string;
-  onClick?: () => void;
 }
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
-export function MediaCard({ item, className, onClick }: MediaCardProps) {
+export function MediaCard({ item, className }: MediaCardProps) {
   const title = 'title' in item ? item.title : item.name;
   const date = 'release_date' in item ? item.release_date : item.first_air_date;
   const year = date ? new Date(date).getFullYear() : '';
+  const mediaType = 'title' in item ? 'movies' : 'tv-shows';
+  
   const imageUrl = item.poster_path 
     ? `${IMAGE_BASE_URL}${item.poster_path}` 
     : '/placeholder-image.jpg';
+
   return (
-    <div 
-      className={cn("group relative cursor-pointer overflow-hidden rounded-md transition-transform hover:scale-105", className)}
-      onClick={onClick}
+    <Link 
+      to="/watch/$mediaType/$id"
+      params={{ mediaType, id: item.id.toString() }}
+      search={{ season: 1, episode: 1 }}
+      className={cn("group block relative cursor-pointer overflow-hidden rounded-md transition-transform hover:scale-105", className)}
     >
       <AspectRatio ratio={2 / 3} className="bg-muted">
         <img
@@ -43,6 +48,6 @@ export function MediaCard({ item, className, onClick }: MediaCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

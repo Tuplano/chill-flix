@@ -1,14 +1,16 @@
 import { MediaRow } from '@/components/Media/MediaRow'
 import { Hero } from '@/components/Media/Hero'
-import { getTrendingMovies, getTrendingTVShows, getNowPlayingMovies } from '@/services/tmdb-services'
+import { trendingMoviesQueryOptions, trendingTVShowsQueryOptions, nowPlayingMoviesQueryOptions } from '@/services/tmdb/queries'
+
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_public/')({
-  loader: async () => {
+  loader: async ({ context }) => {
+    const { queryClient } = context
     const [trendingMovies, trendingTVShows, newMovies] = await Promise.all([
-      getTrendingMovies(),
-      getTrendingTVShows(),
-      getNowPlayingMovies(),
+      queryClient.ensureQueryData(trendingMoviesQueryOptions()),
+      queryClient.ensureQueryData(trendingTVShowsQueryOptions()),
+      queryClient.ensureQueryData(nowPlayingMoviesQueryOptions()),
     ])
     return { trendingMovies, trendingTVShows, newMovies }
   },
@@ -27,10 +29,12 @@ function App() {
           title="Trending Movies" 
           items={trendingMovies.results} 
           autoPlay 
+          mediaType="movies"
         />
         <MediaRow 
           title="Trending TV Shows" 
           items={trendingTVShows.results} 
+          mediaType="tv-shows"
         />
       </div>
     </div>

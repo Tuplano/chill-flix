@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicBrowseMediaTypeRouteImport } from './routes/_public/browse.$mediaType'
+import { Route as PublicWatchMediaTypeIdRouteImport } from './routes/_public/watch.$mediaType.$id'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -27,27 +28,40 @@ const PublicBrowseMediaTypeRoute = PublicBrowseMediaTypeRouteImport.update({
   path: '/browse/$mediaType',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicWatchMediaTypeIdRoute = PublicWatchMediaTypeIdRouteImport.update({
+  id: '/watch/$mediaType/$id',
+  path: '/watch/$mediaType/$id',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/browse/$mediaType': typeof PublicBrowseMediaTypeRoute
+  '/watch/$mediaType/$id': typeof PublicWatchMediaTypeIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/browse/$mediaType': typeof PublicBrowseMediaTypeRoute
+  '/watch/$mediaType/$id': typeof PublicWatchMediaTypeIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicRouteWithChildren
   '/_public/': typeof PublicIndexRoute
   '/_public/browse/$mediaType': typeof PublicBrowseMediaTypeRoute
+  '/_public/watch/$mediaType/$id': typeof PublicWatchMediaTypeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/browse/$mediaType'
+  fullPaths: '/' | '/browse/$mediaType' | '/watch/$mediaType/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/browse/$mediaType'
-  id: '__root__' | '/_public' | '/_public/' | '/_public/browse/$mediaType'
+  to: '/' | '/browse/$mediaType' | '/watch/$mediaType/$id'
+  id:
+    | '__root__'
+    | '/_public'
+    | '/_public/'
+    | '/_public/browse/$mediaType'
+    | '/_public/watch/$mediaType/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,17 +91,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicBrowseMediaTypeRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/watch/$mediaType/$id': {
+      id: '/_public/watch/$mediaType/$id'
+      path: '/watch/$mediaType/$id'
+      fullPath: '/watch/$mediaType/$id'
+      preLoaderRoute: typeof PublicWatchMediaTypeIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
 interface PublicRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBrowseMediaTypeRoute: typeof PublicBrowseMediaTypeRoute
+  PublicWatchMediaTypeIdRoute: typeof PublicWatchMediaTypeIdRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
   PublicBrowseMediaTypeRoute: PublicBrowseMediaTypeRoute,
+  PublicWatchMediaTypeIdRoute: PublicWatchMediaTypeIdRoute,
 }
 
 const PublicRouteWithChildren =

@@ -1,55 +1,49 @@
-// import { getAuthToken } from '@/lib/auth'; // Placeholder for auth token retrieval
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-
-interface RequestConfig extends RequestInit {
-  data?: unknown;
-  headers?: HeadersInit;
-}
 
 // Simple auth token helper placeholder
 function getAuthToken(): string | null {
   return localStorage.getItem('token');
 }
 
-async function request<T>(endpoint: string, config: RequestConfig = {}): Promise<T> {
-  const token = getAuthToken();
-  
-  const headers: HeadersInit = {
+const axiosInstance: AxiosInstance = axios.create({
+  baseURL: BASE_URL,
+  headers: {
     'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-    ...config.headers,
-  };
+  },
+});
 
-  const configObj: RequestInit = {
-    ...config,
-    headers,
-  };
-
-  if (config.data) {
-    configObj.body = JSON.stringify(config.data);
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, configObj);
-
-  if (!response.ok) {
-    // Handle specific status codes if needed (e.g. 401 logout)
-    const errorBody = await response.text().catch(() => '');
-    throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody}`);
+axiosInstance.interceptors.response.use(
+  (response) => {
+    return response.data;
+  },
+  (error) => {
+    const errorBody = error.response?.data || '';
+    const errorMessage = `API Error: ${error.response?.status} ${error.response?.statusText} - ${JSON.stringify(errorBody)}`;
+    console.error(errorMessage);
+    return Promise.reject(new Error(errorMessage));
   }
-
-  // Handle empty responses
-  if (response.status === 204) {
-      return {} as T;
-  }
-
-  return response.json();
-}
+);
 
 export const api = {
-  get: <T>(url: string, config?: RequestConfig) => request<T>(url, { ...config, method: 'GET' }),
-  post: <T>(url: string, data: unknown, config?: RequestConfig) => request<T>(url, { ...config, method: 'POST', data }),
-  put: <T>(url: string, data: unknown, config?: RequestConfig) => request<T>(url, { ...config, method: 'PUT', data }),
-  patch: <T>(url: string, data: unknown, config?: RequestConfig) => request<T>(url, { ...config, method: 'PATCH', data }),
-  delete: <T>(url: string, config?: RequestConfig) => request<T>(url, { ...config, method: 'DELETE' }),
+  get: <T>(url: string, config?: AxiosRequestConfig): Promise<T> => axiosInstance.get(url, config),
+  post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => axiosInstance.post(url, data, config),
+  put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => axiosInstance.put(url, data, config),
+  patch: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => axiosInstance.patch(url, data, config),
+  delete: <T>(url: string, config?: AxiosRequestConfig): Promise<T> => axiosInstance.delete(url, config),
 };
+

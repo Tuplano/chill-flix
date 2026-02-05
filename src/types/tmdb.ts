@@ -40,6 +40,42 @@ export interface TVShow {
   vote_count: number;
 }
 
+export interface Season {
+  air_date: string;
+  episode_count: number;
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string | null;
+  season_number: number;
+}
+
+export interface Episode {
+  air_date: string;
+  episode_number: number;
+  id: number;
+  name: string;
+  overview: string;
+  production_code: string;
+  season_number: number;
+  still_path: string | null;
+  vote_average: number;
+  vote_count: number;
+}
+
+export interface TVShowDetails extends TVShow {
+  genres: Genre[];
+  number_of_episodes: number;
+  number_of_seasons: number;
+  seasons: Season[];
+  status: string;
+  tagline: string;
+}
+
+export interface SeasonDetails extends Season {
+  episodes: Episode[];
+}
+
 export interface TVShowResponse extends TMDBResponse<TVShow> {}
 
 export interface Genre {

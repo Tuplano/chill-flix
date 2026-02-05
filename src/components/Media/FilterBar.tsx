@@ -67,97 +67,83 @@ export function FilterSidebar({ genres }: FilterSidebarProps) {
   const activeFilterCount = (searchParams.q ? 1 : 0) + selectedGenres.length
 
   return (
-    <aside className="w-64 shrink-0">
-      <div className="sticky top-24 space-y-6">
-        {/* Sidebar Header */}
-        <div className="p-6 rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 backdrop-blur-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                <Filter className="h-4 w-4 text-yellow-500" />
+    <aside className="w-full md:w-64 lg:w-72 shrink-0 animate-in fade-in slide-in-from-left-8 duration-700">
+      <div className="space-y-6">
+        
+        {/* Search Section */}
+        <div className="group relative">
+           <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-500/20 to-purple-500/20 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
+           <div className="relative p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-xl space-y-4">
+            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-widest flex items-center gap-2">
+              <Search className="w-4 h-4 text-yellow-500" />
+              Search
+            </h3>
+            <form onSubmit={handleSearch} className="relative group/input">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within/input:text-yellow-500 transition-colors" />
+              <Input 
+                type="text" 
+                placeholder="Keywords..." 
+                className="pl-10 h-11 bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500 rounded-xl focus-visible:ring-yellow-500/50 focus-visible:border-yellow-500/50 transition-all hover:bg-white/10"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </form>
+            
+            {/* Active Search Badge */}
+            {searchParams.q && (
+              <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+                <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1.5 w-full justify-between group/badge hover:bg-yellow-500/20 transition-colors">
+                  <span className="truncate mr-2">"{searchParams.q}"</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery('')
+                      navigate({
+                        to: '/browse/$mediaType',
+                        params: (prev: any) => prev,
+                        search: (prev: any) => ({ ...prev, q: undefined, page: 1 }),
+                      })
+                    }}
+                    className="hover:text-white transition-colors p-0.5 rounded-full hover:bg-white/10"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </Badge>
               </div>
-              <h2 className="text-lg font-semibold text-slate-200">Filters</h2>
-            </div>
-            {activeFilterCount > 0 && (
-              <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30 hover:bg-yellow-500/30">
-                {activeFilterCount}
-              </Badge>
             )}
           </div>
-
-          {/* Clear All Filters */}
-          {activeFilterCount > 0 && (
-            <Button 
-              variant="ghost" 
-              onClick={clearFilters}
-              className="w-full justify-start text-slate-400 hover:text-yellow-500 hover:bg-yellow-500/10 transition-colors"
-            >
-              <X className="h-4 w-4 mr-2" />
-              Clear all filters
-            </Button>
-          )}
-        </div>
-
-        {/* Search Section */}
-        <div className="p-6 rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 backdrop-blur-sm space-y-3">
-          <h3 className="text-sm font-medium text-slate-300 mb-3">Search</h3>
-          <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input 
-              type="text" 
-              placeholder="Search..." 
-              className="pl-9 bg-slate-900/50 border-slate-600 text-slate-200 placeholder:text-slate-500 focus-visible:ring-yellow-500/50 focus-visible:border-yellow-500/50"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </form>
-          {searchParams.q && (
-            <div className="flex items-center gap-2 mt-2">
-              <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
-                "{searchParams.q}"
-                <button
-                  onClick={() => {
-                    setQuery('')
-                    navigate({
-                      to: '/browse/$mediaType',
-                      params: (prev: any) => prev,
-                      search: (prev: any) => ({ ...prev, q: undefined, page: 1 }),
-                    })
-                  }}
-                  className="ml-1 hover:text-yellow-400"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            </div>
-          )}
         </div>
 
         {/* Genres Section */}
-        <div className="rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 backdrop-blur-sm overflow-hidden">
+        <div className="rounded-2xl bg-black/40 border border-white/10 backdrop-blur-xl overflow-hidden">
           <button
             onClick={() => setIsGenresExpanded(!isGenresExpanded)}
-            className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-800/30 transition-colors"
+            className="w-full px-6 py-5 flex items-center justify-between hover:bg-white/5 transition-colors group"
           >
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-medium text-slate-300">Genres</h3>
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 group-hover:border-yellow-500/40 transition-colors">
+                 <Filter className="h-4 w-4 text-yellow-500" />
+              </div>
+              <h3 className="font-bold text-slate-200">Genres</h3>
+            </div>
+             <div className="flex items-center gap-3">
               {selectedGenres.length > 0 && (
-                <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30 text-xs">
+                <Badge className="bg-yellow-500 text-black hover:bg-yellow-400 border-0 h-5 px-1.5 min-w-[1.25rem] justify-center">
                   {selectedGenres.length}
                 </Badge>
               )}
+              {isGenresExpanded ? (
+                <ChevronUp className="h-4 w-4 text-slate-500 group-hover:text-white transition-colors" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-slate-500 group-hover:text-white transition-colors" />
+              )}
             </div>
-            {isGenresExpanded ? (
-              <ChevronUp className="h-4 w-4 text-slate-400" />
-            ) : (
-              <ChevronDown className="h-4 w-4 text-slate-400" />
-            )}
           </button>
 
           {isGenresExpanded && (
-            <div className="px-4 pb-4">
-              <ScrollArea className="h-[400px] pr-2">
-                <div className="space-y-1">
+            <div className="px-3 pb-3">
+              <ScrollArea className="h-[400px] pr-3 -mr-3">
+                <div className="space-y-1 pb-2">
                   {genres.map((genre) => {
                     const isSelected = selectedGenres.includes(genre.id)
                     return (
@@ -165,17 +151,17 @@ export function FilterSidebar({ genres }: FilterSidebarProps) {
                         key={genre.id}
                         onClick={() => toggleGenre(genre.id)}
                         className={`
-                          w-full px-3 py-2.5 rounded-lg text-left text-sm transition-all duration-200
+                          w-full px-4 py-3 rounded-xl text-left text-sm transition-all duration-300 border
                           ${isSelected 
-                            ? 'bg-yellow-500/20 text-yellow-500 font-medium border border-yellow-500/30 shadow-sm' 
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                            ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 shadow-[0_0_10px_rgba(234,179,8,0.1)] font-medium' 
+                            : 'bg-transparent border-transparent text-slate-400 hover:text-white hover:bg-white/5'
                           }
                         `}
                       >
                         <div className="flex items-center justify-between">
                           <span>{genre.name}</span>
                           {isSelected && (
-                            <div className="h-2 w-2 rounded-full bg-yellow-500" />
+                            <div className="h-1.5 w-1.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgb(234,179,8)] animate-in fade-in zoom-in" />
                           )}
                         </div>
                       </button>
@@ -183,32 +169,24 @@ export function FilterSidebar({ genres }: FilterSidebarProps) {
                   })}
                 </div>
               </ScrollArea>
+              
+               {/* Actions Footer */}
+              {activeFilterCount > 0 && (
+                <div className="pt-3 mt-3 border-t border-white/5 animate-in fade-in slide-in-from-bottom-2">
+                   <Button 
+                    variant="ghost" 
+                    onClick={clearFilters}
+                    size="sm"
+                    className="w-full text-slate-400 hover:text-white hover:bg-white/10 h-9 rounded-lg"
+                  >
+                    <X className="h-3.5 w-3.5 mr-2" />
+                    Reset Filters
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>
-
-        {/* Active Filters Summary */}
-        {selectedGenres.length > 0 && (
-          <div className="p-4 rounded-xl bg-gradient-to-br from-slate-800/30 to-slate-900/30 border border-slate-700/30 backdrop-blur-sm">
-            <h3 className="text-xs font-medium text-slate-400 mb-3">Active Genres</h3>
-            <div className="flex flex-wrap gap-2">
-              {selectedGenres.map((genreId) => {
-                const genre = genres.find(g => g.id === genreId)
-                return genre ? (
-                  <Badge 
-                    key={genreId}
-                    variant="secondary"
-                    className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 hover:bg-yellow-500/20 cursor-pointer"
-                    onClick={() => toggleGenre(genreId)}
-                  >
-                    {genre.name}
-                    <X className="h-3 w-3 ml-1" />
-                  </Badge>
-                ) : null
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </aside>
   )
