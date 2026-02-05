@@ -123,7 +123,8 @@ function WatchPage() {
       </div>
 
       {/* Top Navigation / Back Button - Floating Glass */}
-      <div className="top-0 left-0 right-0 z-50 pointer-events-none">
+      {/* Top Navigation / Back Button - Floating Glass */}
+      <div className="fixed top-20 left-0 right-0 z-40 pointer-events-none">
         <div className="container mx-auto px-4 py-4">
           <Link 
             to="/browse/$mediaType" 

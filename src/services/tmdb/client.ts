@@ -10,7 +10,7 @@ export const tmdbApi = axios.create({
     Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`,
   },
   params: {
-    include_adult: false,
+    include_adult: true,
   },
 });
 

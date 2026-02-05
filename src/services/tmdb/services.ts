@@ -68,7 +68,7 @@ export const discoverMedia = async (
   type: 'movie' | 'tv', 
   params: { page?: number; with_genres?: string }
 ): Promise<MovieResponse | TVShowResponse> => {
-  return tmdbClient.get<MovieResponse | TVShowResponse>(`/discover/${type}`, { params });
+  return tmdbClient.get<MovieResponse | TVShowResponse>(`/discover/${String(type)}`, { params });
 };
 
 export const searchMedia = async (
@@ -94,3 +94,9 @@ export const getSimilarTVShows = async (id: number, page: number = 1): Promise<T
   return tmdbClient.get<TVShowResponse>(`/tv/${id}/similar`, { params: { page } });
 };
 
+export const searchMultiMedia = async (
+  query: string,
+  page: number = 1
+): Promise<{ results: (Movie | TVShowDetails)[] }> => {
+  return tmdbClient.get<{ results: (Movie | TVShowDetails)[] }>(`/search/multi`, { params: { query, page } });
+};
