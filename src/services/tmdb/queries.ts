@@ -1,4 +1,4 @@
-import { queryOptions } from '@tanstack/react-query';
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query';
 import { 
   getTrendingMovies, 
   getTrendingTVShows, 
@@ -14,7 +14,8 @@ import {
   getGenres,
   discoverMedia,
   searchMedia,
-  getSeasonDetails
+  getSeasonDetails,
+  searchMultiMedia
 } from './services';
 
 
@@ -124,3 +125,14 @@ export const seasonDetailsQueryOptions = (tvId: number, seasonNumber: number) =>
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
+export const multiSearchInfiniteQueryOptions = (query: string) =>
+  infiniteQueryOptions({
+    queryKey: ['multiSearch', query],
+    queryFn: ({ pageParam = 1 }) => searchMultiMedia(query, pageParam as number),
+    getNextPageParam: (lastPage: any, allPages) => {
+      return lastPage.results.length > 0 ? allPages.length + 1 : undefined;
+    },
+    initialPageParam: 1,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: query.length > 2,
+  });

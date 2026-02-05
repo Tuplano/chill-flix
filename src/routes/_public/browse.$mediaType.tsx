@@ -17,6 +17,7 @@ import {
   PaginationContent,
   PaginationItem,
 } from "@/components/ui/pagination"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
 type BrowseSearch = {
   page: number
@@ -146,6 +147,19 @@ function BrowsePage() {
               <span className="text-sm font-bold text-yellow-500">{page}</span>
               <span className="text-sm text-slate-600">/</span>
               <span className="text-sm font-medium text-slate-300">{totalPages}</span>
+            </div>
+
+            <div>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2022">2022</SelectItem>
+                  <SelectItem value="2023">2023</SelectItem>
+                  <SelectItem value="2024">2024</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

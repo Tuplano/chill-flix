@@ -1,11 +1,11 @@
 import { useNavigate, useLocation } from '@tanstack/react-router';
-import { Film, Search, X, Star, Tv, Clapperboard } from 'lucide-react';
+import { Film, Search, X, Star, Tv, Clapperboard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { searchMultiMedia } from '@/services/tmdb/services';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { multiSearchInfiniteQueryOptions } from '@/services/tmdb/queries';
 
 export function HeaderSearch() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -27,13 +27,16 @@ export function HeaderSearch() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch search results
-  const { data: searchResults } = useQuery({
-    queryKey: ['multiSearch', debouncedQuery],
-    queryFn: () => searchMultiMedia(debouncedQuery),
-    enabled: debouncedQuery.length > 2,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  // Fetch search results with infinite scrolling
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading
+  } = useInfiniteQuery(multiSearchInfiniteQueryOptions(debouncedQuery));
+
+  const searchResults = data?.pages.flatMap((page) => page.results) || [];
 
   useEffect(() => {
     if (isSearchOpen && inputRef.current) {
@@ -101,7 +104,9 @@ export function HeaderSearch() {
             onBlur={() => {
               // Slight delay to allow clicking on results
               setTimeout(() => {
-                if (!searchQuery) setIsSearchOpen(false);
+                if (!document.activeElement?.closest('[data-slot="switch"]') && !searchQuery) { 
+                   setIsSearchOpen(false);
+                }
               }, 200);
             }}
           />
@@ -123,64 +128,82 @@ export function HeaderSearch() {
       </div>
 
       {/* Live Search Results Dropdown */}
-      {isSearchOpen && debouncedQuery.length > 2 && searchResults && (
-        <div className="absolute top-full mt-2 right-0 w-[350px] bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-40 animate-in fade-in slide-in-from-top-2">
-          <div className="p-2 space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
-            {searchResults.results
-              .filter((item: any) => item.media_type === 'movie' || item.media_type === 'tv')
-              .slice(0, 6)
-              .map((item: any) => (
-              <button
-                key={item.id}
-                onClick={() => handleResultClick(item)}
-                className="w-full flex items-start gap-3 p-2 rounded-xl hover:bg-white/10 transition-colors text-left group hover:cursor-pointer"
-              >
-                <div className="w-12 h-16 rounded-lg overflow-hidden bg-slate-800 flex-shrink-0">
-                  {item.poster_path ? (
-                    <img 
-                      src={`https://image.tmdb.org/t/p/w200${item.poster_path}`} 
-                      alt={item.title || item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-600">
-                      <Film className="h-4 w-4" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0 py-1">
-                  <h4 className="font-bold text-slate-200 text-sm truncate group-hover:text-yellow-500 transition-colors">
-                    {item.title || item.name}
-                  </h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-medium text-slate-500 uppercase flex items-center gap-1">
-                      {item.media_type === 'movie' ? <Clapperboard className="w-3 h-3" /> : <Tv className="w-3 h-3" />}
-                      {item.media_type === 'movie' ? 'Movie' : 'TV Show'}
-                    </span>
-                    {item.vote_average > 0 && (
-                      <div className="flex items-center gap-1 text-xs text-yellow-500">
-                        <Star className="w-3 h-3 fill-yellow-500" />
-                        {item.vote_average.toFixed(1)}
+      {isSearchOpen && debouncedQuery.length > 2 && (
+        <div className="absolute top-full mt-2 right-0 w-[400px] bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-40 animate-in fade-in slide-in-from-top-2">
+          <div className="p-2 space-y-1 max-h-[500px] overflow-y-auto custom-scrollbar">
+            {searchResults.length > 0 ? (
+               searchResults
+                .filter((item: any) => item.media_type === 'movie' || item.media_type === 'tv')
+                .map((item: any) => (
+                <button
+                  key={`${item.id}-${item.media_type}`} // Ensure unique keys
+                  onClick={() => handleResultClick(item)}
+                  className="w-full flex items-start gap-3 p-2 rounded-xl hover:bg-white/10 transition-colors text-left group hover:cursor-pointer"
+                >
+                  <div className="w-12 h-16 rounded-lg overflow-hidden bg-slate-800 flex-shrink-0 relative">
+                    {item.poster_path ? (
+                      <img 
+                        src={`https://image.tmdb.org/t/p/w200${item.poster_path}`} 
+                        alt={item.title || item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-600">
+                        <Film className="h-4 w-4" />
                       </div>
                     )}
                   </div>
+                  <div className="flex-1 min-w-0 py-1">
+                    <h4 className="font-bold text-slate-200 text-sm truncate group-hover:text-yellow-500 transition-colors">
+                      {item.title || item.name}
+                    </h4>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs font-medium text-slate-500 uppercase flex items-center gap-1">
+                        {item.media_type === 'movie' ? <Clapperboard className="w-3 h-3" /> : <Tv className="w-3 h-3" />}
+                        {item.media_type === 'movie' ? 'Movie' : 'TV Show'}
+                      </span>
+                      {item.vote_average > 0 && (
+                        <div className="flex items-center gap-1 text-xs text-yellow-500">
+                          <Star className="w-3 h-3 fill-yellow-500" />
+                          {item.vote_average.toFixed(1)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))
+            ) : (
+               !isLoading && (
+                <div className="p-4 text-center text-slate-500 text-sm">
+                  No results found for "{searchQuery}"
                 </div>
-              </button>
-            ))}
-            {searchResults.results.filter((item:any) => item.media_type === 'movie' || item.media_type === 'tv').length === 0 && (
-               <div className="p-4 text-center text-slate-500 text-sm">
-                No results found for "{searchQuery}"
+               )
+            )}
+            
+            {/* Load More Button or Loader */}
+            {hasNextPage && (
+              <div className="pt-2 pb-1 text-center">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fetchNextPage();
+                  }}
+                  disabled={isFetchingNextPage}
+                  className="w-full text-xs text-slate-400 hover:text-white hover:bg-white/5 uppercase tracking-wider"
+                >
+                  {isFetchingNextPage ? (
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                  ) : (
+                    "Load More Results"
+                  )}
+                </Button>
               </div>
             )}
+            
           </div>
-          {searchResults.results.filter((item:any) => item.media_type === 'movie' || item.media_type === 'tv').length > 5 && (
-            <button 
-              onClick={(e) => handleSearch(e)}
-              className="w-full p-3 text-center text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 border-t border-white/5 transition-colors uppercase tracking-widest"
-            >
-              View All Results
-            </button>
-          )}
         </div>
       )}
     </div>
