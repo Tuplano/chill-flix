@@ -1,9 +1,7 @@
 export const PATHS = {
   HOME: '/',
-  ABOUT: '/about',
-  CONTACT: '/contact',
-  LOGIN: '/login',
-  REGISTER: '/register',
+  LOGIN: '/auth/sign-in',
+  REGISTER: '/auth/sign-up',
   DASHBOARD: {
     ROOT: '/dashboard',
     SETTINGS: '/dashboard/settings',

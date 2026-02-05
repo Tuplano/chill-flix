@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PublicBrowseMediaTypeRouteImport } from './routes/_public/browse.$mediaType'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -21,24 +22,32 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicBrowseMediaTypeRoute = PublicBrowseMediaTypeRouteImport.update({
+  id: '/browse/$mediaType',
+  path: '/browse/$mediaType',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/browse/$mediaType': typeof PublicBrowseMediaTypeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
+  '/browse/$mediaType': typeof PublicBrowseMediaTypeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicRouteWithChildren
   '/_public/': typeof PublicIndexRoute
+  '/_public/browse/$mediaType': typeof PublicBrowseMediaTypeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/browse/$mediaType'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/_public' | '/_public/'
+  to: '/' | '/browse/$mediaType'
+  id: '__root__' | '/_public' | '/_public/' | '/_public/browse/$mediaType'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -61,15 +70,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/browse/$mediaType': {
+      id: '/_public/browse/$mediaType'
+      path: '/browse/$mediaType'
+      fullPath: '/browse/$mediaType'
+      preLoaderRoute: typeof PublicBrowseMediaTypeRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
 interface PublicRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicBrowseMediaTypeRoute: typeof PublicBrowseMediaTypeRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
+  PublicBrowseMediaTypeRoute: PublicBrowseMediaTypeRoute,
 }
 
 const PublicRouteWithChildren =
