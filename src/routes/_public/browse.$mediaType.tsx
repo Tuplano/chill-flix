@@ -17,7 +17,6 @@ import {
   PaginationContent,
   PaginationItem,
 } from "@/components/ui/pagination"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
 type BrowseSearch = {
   page: number
@@ -43,13 +42,10 @@ export const Route = createFileRoute('/_public/browse/$mediaType')({
     }
 
 
-    // Force type to be 'movie' | 'tv'
     const type = (mediaType === 'movies' ? 'movie' : 'tv') as 'movie' | 'tv'
     
-    // Preload Genres
     await queryClient.ensureQueryData(genresQueryOptions(type))
 
-    // Preload Main Content
     let options: any;
     if (q) {
       options = searchMediaQueryOptions(type, q, page);
@@ -60,10 +56,10 @@ export const Route = createFileRoute('/_public/browse/$mediaType')({
         ? popularMoviesQueryOptions(page) 
         : popularTVShowsQueryOptions(page);
     }
+
     
     await queryClient.ensureQueryData(options)
     
-    // We don't return data here, we let the component query it
     return { 
       page,
       q,
@@ -148,19 +144,11 @@ function BrowsePage() {
               <span className="text-sm text-slate-600">/</span>
               <span className="text-sm font-medium text-slate-300">{totalPages}</span>
             </div>
-
-            <div>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2022">2022</SelectItem>
-                  <SelectItem value="2023">2023</SelectItem>
-                  <SelectItem value="2024">2024</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          </div>
+          
+          {/* asc desc by year*/}
+          <div>
+            
           </div>
 
           {/* Results Grid */}

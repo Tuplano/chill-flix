@@ -94,6 +94,7 @@ function WatchPage() {
   const rating = details.vote_average;
   const releaseDate = 'release_date' in details ? details.release_date : details.first_air_date;
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
+
   
   const baseUrl = import.meta.env.VITE_PLAYER_BASE_URL || 'https://vidsrc-embed.ru/embed/';
   const playerUrl = type === 'movie' 
@@ -115,6 +116,7 @@ function WatchPage() {
   };
 
   return (
+    
     <div className="min-h-screen bg-black text-white selection:bg-yellow-500/30">
       {/* Background Gradients */}
       <div className="fixed inset-0 z-0 pointer-events-none">

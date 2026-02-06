@@ -79,7 +79,9 @@ export function FilterSidebar({ genres }: FilterSidebarProps) {
               Search
             </h3>
             <form onSubmit={handleSearch} className="relative group/input">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within/input:text-yellow-500 transition-colors" />
+              <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/10 transition-colors cursor-pointer z-10">
+                <Search className="h-4 w-4 text-slate-500 group-focus-within/input:text-yellow-500 transition-colors" />
+              </button>
               <Input 
                 type="text" 
                 placeholder="Keywords..." 
