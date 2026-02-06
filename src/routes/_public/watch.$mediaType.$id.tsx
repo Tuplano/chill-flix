@@ -99,7 +99,7 @@ function WatchPage() {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
 
   
-  const baseUrl = import.meta.env.VITE_PLAYER_BASE_URL || 'https://vidsrc-embed.ru/embed/';
+  const baseUrl = import.meta.env.PLAYER_BASE_URL || 'https://vidsrc-embed.ru/embed/';
   const playerUrl = type === 'movie' 
     ? `${baseUrl}movie?tmdb=${id}&autoplay=1`
     : `${baseUrl}tv?tmdb=${id}&season=${season}&episode=${episode}&autoplay=1&autonext=1`; 
