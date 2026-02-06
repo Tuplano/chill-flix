@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { 
   movieDetailsQueryOptions,
   tvShowDetailsQueryOptions,
@@ -13,6 +14,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MediaRow } from '@/components/Media/MediaRow';
+import { useContinueWatching } from '@/hooks/useContinueWatching';
 import { Star, ChevronLeft, Bookmark, Share2, ChevronDown } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -100,6 +102,22 @@ function WatchPage() {
   const playerUrl = type === 'movie' 
     ? `${baseUrl}movie?tmdb=${id}&autoplay=1`
     : `${baseUrl}tv?tmdb=${id}&season=${season}&episode=${episode}&autoplay=1&autonext=1`; 
+
+  const { saveProgress } = useContinueWatching();
+
+  useEffect(() => {
+    if (details) {
+      saveProgress({
+        id: Number(id),
+        mediaType: type,
+        title: title || '',
+        poster_path: details.poster_path || '',
+        backdrop_path: details.backdrop_path || '',
+        season: type === 'tv' ? season : undefined,
+        episode: type === 'tv' ? episode : undefined,
+      });
+    }
+  }, [id, type, season, episode, details]);
 
   const handleEpisodeChange = (newEpisode: number) => {
     navigate({

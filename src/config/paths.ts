@@ -7,4 +7,5 @@ export const PATHS = {
     SETTINGS: '/dashboard/settings',
     PROFILE: '/dashboard/profile',
   },
+  BOOKMARKS: '/bookmarks',
 } as const;

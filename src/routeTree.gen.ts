@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PublicBookmarksRouteImport } from './routes/_public/bookmarks'
 import { Route as PublicBrowseMediaTypeRouteImport } from './routes/_public/browse.$mediaType'
 import { Route as PublicWatchMediaTypeIdRouteImport } from './routes/_public/watch.$mediaType.$id'
 
@@ -21,6 +22,11 @@ const PublicRoute = PublicRouteImport.update({
 const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicBookmarksRoute = PublicBookmarksRouteImport.update({
+  id: '/bookmarks',
+  path: '/bookmarks',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicBrowseMediaTypeRoute = PublicBrowseMediaTypeRouteImport.update({
@@ -36,10 +42,12 @@ const PublicWatchMediaTypeIdRoute = PublicWatchMediaTypeIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/bookmarks': typeof PublicBookmarksRoute
   '/browse/$mediaType': typeof PublicBrowseMediaTypeRoute
   '/watch/$mediaType/$id': typeof PublicWatchMediaTypeIdRoute
 }
 export interface FileRoutesByTo {
+  '/bookmarks': typeof PublicBookmarksRoute
   '/': typeof PublicIndexRoute
   '/browse/$mediaType': typeof PublicBrowseMediaTypeRoute
   '/watch/$mediaType/$id': typeof PublicWatchMediaTypeIdRoute
@@ -47,18 +55,20 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicRouteWithChildren
+  '/_public/bookmarks': typeof PublicBookmarksRoute
   '/_public/': typeof PublicIndexRoute
   '/_public/browse/$mediaType': typeof PublicBrowseMediaTypeRoute
   '/_public/watch/$mediaType/$id': typeof PublicWatchMediaTypeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/browse/$mediaType' | '/watch/$mediaType/$id'
+  fullPaths: '/' | '/bookmarks' | '/browse/$mediaType' | '/watch/$mediaType/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/browse/$mediaType' | '/watch/$mediaType/$id'
+  to: '/bookmarks' | '/' | '/browse/$mediaType' | '/watch/$mediaType/$id'
   id:
     | '__root__'
     | '/_public'
+    | '/_public/bookmarks'
     | '/_public/'
     | '/_public/browse/$mediaType'
     | '/_public/watch/$mediaType/$id'
@@ -84,6 +94,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/bookmarks': {
+      id: '/_public/bookmarks'
+      path: '/bookmarks'
+      fullPath: '/bookmarks'
+      preLoaderRoute: typeof PublicBookmarksRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/browse/$mediaType': {
       id: '/_public/browse/$mediaType'
       path: '/browse/$mediaType'
@@ -102,12 +119,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface PublicRouteChildren {
+  PublicBookmarksRoute: typeof PublicBookmarksRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBrowseMediaTypeRoute: typeof PublicBrowseMediaTypeRoute
   PublicWatchMediaTypeIdRoute: typeof PublicWatchMediaTypeIdRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
+  PublicBookmarksRoute: PublicBookmarksRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicBrowseMediaTypeRoute: PublicBrowseMediaTypeRoute,
   PublicWatchMediaTypeIdRoute: PublicWatchMediaTypeIdRoute,

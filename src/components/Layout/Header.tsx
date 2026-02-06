@@ -66,8 +66,10 @@ export function Header() {
           {/* Header Search Component */}
           <HeaderSearch />
 
-          <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white hover:bg-white/10 rounded-full relative hover:cursor-pointer">
-            <Bookmark className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white hover:bg-white/10 rounded-full relative hover:cursor-pointer" asChild>
+            <Link to={PATHS.BOOKMARKS}>
+              <Bookmark className="h-5 w-5" />
+            </Link>
           </Button>
 
         </div>
