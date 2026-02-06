@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MediaRow } from '@/components/Media/MediaRow';
 import { useContinueWatching } from '@/hooks/useContinueWatching';
+import { useWatchHistory } from '@/hooks/useWatchHistory';
 import { Star, ChevronLeft, Bookmark, Share2, ChevronDown } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -104,10 +105,11 @@ function WatchPage() {
     : `${baseUrl}tv?tmdb=${id}&season=${season}&episode=${episode}&autoplay=1&autonext=1`; 
 
   const { saveProgress } = useContinueWatching();
+  const { markAsWatched, isWatched } = useWatchHistory();
 
   useEffect(() => {
     if (details) {
-      saveProgress({
+      const progressItem = {
         id: Number(id),
         mediaType: type,
         title: title || '',
@@ -115,7 +117,10 @@ function WatchPage() {
         backdrop_path: details.backdrop_path || '',
         season: type === 'tv' ? season : undefined,
         episode: type === 'tv' ? episode : undefined,
-      });
+      };
+      
+      saveProgress(progressItem);
+      markAsWatched(progressItem);
     }
   }, [id, type, season, episode, details]);
 
@@ -233,21 +238,31 @@ function WatchPage() {
                 </div>
                 
                 <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                  {seasonDetails.episodes.map((ep) => (
-                    <Button
-                      key={ep.id}
-                      variant="outline"
-                      onClick={() => handleEpisodeChange(ep.episode_number)}
-                      className={cn(
-                        "h-12 w-full font-bold transition-all duration-300 rounded-xl border-0 relative overflow-hidden",
-                        ep.episode_number === episode 
-                          ? 'bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]' 
-                          : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
-                      )}
-                    >
-                      {ep.episode_number}
-                    </Button>
-                  ))}
+                  {seasonDetails.episodes.map((ep) => {
+                    const watched = isWatched(Number(id), 'tv', season, ep.episode_number);
+                    const active = ep.episode_number === episode;
+
+                    return (
+                      <Button
+                        key={ep.id}
+                        variant="outline"
+                        onClick={() => handleEpisodeChange(ep.episode_number)}
+                        className={cn(
+                          "h-12 w-full font-bold transition-all duration-300 rounded-xl border-0 relative overflow-hidden",
+                          active 
+                            ? 'bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]' 
+                            : watched 
+                              ? 'bg-white/10 text-slate-500 hover:bg-white/15 hover:text-slate-400'
+                              : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                        )}
+                      >
+                        {ep.episode_number}
+                        {watched && !active && (
+                          <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-slate-500/50" />
+                        )}
+                      </Button>
+                    );
+                  })}
                 </div>
               </div>
             )}
