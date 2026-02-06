@@ -137,7 +137,6 @@ function WatchPage() {
       search: (prev) => ({ ...prev, season: newSeason, episode: 1 }),
     });
   };
-
   return (
     
     <div className="min-h-screen bg-black text-white selection:bg-yellow-500/30">
