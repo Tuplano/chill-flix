@@ -4,7 +4,10 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Simple auth token helper placeholder
 function getAuthToken(): string | null {
-  return localStorage.getItem('token');
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('token');
+  }
+  return null;
 }
 
 const axiosInstance: AxiosInstance = axios.create({
