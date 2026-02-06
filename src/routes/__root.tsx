@@ -40,7 +40,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
-        <script src="https://pl28658051.effectivegatecpm.com/a8/41/7c/a8417c30bcd1accf401d6c5c6e26996c.js"></script>
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
