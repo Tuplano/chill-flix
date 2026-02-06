@@ -71,7 +71,7 @@ export function HeaderSearch() {
   return (
     <div className="relative ">
       <div className={cn(
-        "flex items-center transition-all duration-300 ease-in-out rounded-full border overflow-hidden z-50",
+        "flex items-center transition-all duration-300 ease-in-out rounded-full border z-50",
         isSearchOpen 
           ? "fixed top-3 left-3 right-16 w-auto h-12 bg-black/95 backdrop-blur-md border-white/20 px-3 md:relative md:top-auto md:left-auto md:right-auto md:w-full md:max-w-[300px] md:h-9" 
           : "relative w-10 bg-transparent border-transparent"
@@ -129,7 +129,7 @@ export function HeaderSearch() {
 
       {/* Live Search Results Dropdown */}
       {isSearchOpen && debouncedQuery.length > 2 && (
-        <div className="absolute top-full mt-3 -right-2 md:right-0 w-[95vw] md:w-[400px] fixed md:absolute bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-40 animate-in fade-in slide-in-from-top-2 max-h-[80vh] flex flex-col">
+        <div className="fixed top-[64px] left-3 w-[calc(100vw-24px)] md:absolute md:top-full md:mt-3 md:left-auto md:right-0 md:w-[400px] bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-40 animate-in fade-in slide-in-from-top-2 max-h-[80vh] flex flex-col">
           <div className="p-2 space-y-1 max-h-[500px] overflow-y-auto custom-scrollbar">
             {searchResults.length > 0 ? (
                searchResults

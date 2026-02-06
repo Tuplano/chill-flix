@@ -87,9 +87,10 @@ export function Hero({ items }: HeroProps) {
                   <div
                     className="
                       w-full md:w-2/3 lg:w-1/2 space-y-4
-                      transform translate-y-8 opacity-0
+                      transform translate-y-0 opacity-100
+                      md:translate-y-8 md:opacity-0
                       transition-all duration-700 ease-out
-                      group-hover:translate-y-0 group-hover:opacity-100
+                      md:group-hover:translate-y-0 md:group-hover:opacity-100
                     "
                   >
                     <h1 className="text-4xl md:text-6xl font-extrabold text-white drop-shadow-xl leading-tight">
