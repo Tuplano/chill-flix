@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
 import { 
   movieDetailsQueryOptions,
   tvShowDetailsQueryOptions,
@@ -99,12 +100,58 @@ function WatchPage() {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
 
   
+  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'letsembed' | 'autoembed' | 'vidsrc-online' | 'vidstreams'>('vidsrc');
+
+  const servers = [
+    { id: 'vidsrc' as const, name: 'Server 1' },
+    { id: 'letsembed' as const, name: 'Server 2' },
+    { id: 'autoembed' as const, name: 'Server 3' },
+    { id: 'vidsrc-online' as const, name: 'Server 4' },
+    { id: 'vidstreams' as const, name: 'Server 5' },
+  ];
+
+
+
+
   const baseUrl = import.meta.env.VITE_PLAYER_BASE_URL || 'https://vidsrc-embed.ru/embed/';
-  const playerUrl = type === 'movie' 
-    ? `${baseUrl}movie?tmdb=${id}&autoplay=1`
-    : `${baseUrl}tv?tmdb=${id}&season=${season}&episode=${episode}&autoplay=1&autonext=1`; 
+  const letsEmbedBaseUrl = import.meta.env.VITE_LETSEMBED_BASE_URL || 'https://letsembed.cc/embed/';
+  const autoEmbedBaseUrl = import.meta.env.VITE_AUTOEMBED_BASE_URL || 'https://player.autoembed.cc/embed/';
+  const vidsrcOnlineBaseUrl = import.meta.env.VITE_VIDSRC_ONLINE_BASE_URL || 'https://vidsrc.online/embed/';
+  const vidstreamsBaseUrl = import.meta.env.VITE_VIDSTREAMS_BASE_URL || 'https://vidstreams.net/embed/';
+  
+  const getPlayerUrl = () => {
+    if (selectedServer === 'vidsrc') {
+      return type === 'movie' 
+        ? `${baseUrl}movie?tmdb=${id}&autoplay=1`
+        : `${baseUrl}tv?tmdb=${id}&season=${season}&episode=${episode}&autoplay=1&autonext=1`;
+    } else if (selectedServer === 'letsembed') {
+      return type === 'movie'
+        ? `${letsEmbedBaseUrl}movie/?id=${id}`
+        : `${letsEmbedBaseUrl}tv/?id=${id}/${season}/${episode}`;
+    } else if (selectedServer === 'autoembed') {
+      return type === 'movie'
+        ? `${autoEmbedBaseUrl}movie/${id}`
+        : `${autoEmbedBaseUrl}tv/${id}/${season}/${episode}`;
+    } else if (selectedServer === 'vidsrc-online') {
+      return type === 'movie'
+        ? `${vidsrcOnlineBaseUrl}movie/${id}`
+        : `${vidsrcOnlineBaseUrl}tv/${id}/${season}/${episode}`;
+    } else {
+      return type === 'movie'
+        ? `${vidstreamsBaseUrl}tmdb${id}/`
+        : `${vidstreamsBaseUrl}tvm${id}/${season}/${episode}/`;
+    }
+  };
+
+
+
+
+
+
+  const playerUrl = getPlayerUrl();
 
   const { saveProgress } = useContinueWatching();
+
   const { markAsWatched, isWatched } = useWatchHistory();
 
   useEffect(() => {
@@ -183,7 +230,41 @@ function WatchPage() {
               </AspectRatio>
             </div>
 
+            {/* Server Selection */}
+            <div className="space-y-4">
+              <div className="inline-flex flex-col sm:flex-row sm:items-center gap-3 bg-white/5 backdrop-blur-md p-2 rounded-2xl border border-white/10 w-full sm:w-fit overflow-hidden">
+                <span className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest px-3 py-1 sm:py-0 border-b sm:border-b-0 sm:border-r border-white/5">
+                  Servers
+                </span>
+                <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 px-2 sm:px-0 scrollbar-none snap-x h-9 items-center">
+                  {servers.map((server) => (
+                    <Button
+                      key={server.id}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedServer(server.id)}
+                      className={cn(
+                        "rounded-xl px-4 py-1.5 h-8 text-[11px] sm:text-xs font-bold transition-all flex-shrink-0 snap-align-start",
+                        selectedServer === server.id
+                          ? "bg-yellow-500 text-black hover:bg-yellow-400 shadow-lg shadow-yellow-500/20"
+                          : "text-slate-400 hover:text-white hover:bg-white/10"
+                      )}
+                    >
+                      {server.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-500/60 leading-relaxed px-1 max-w-lg">
+                <span className="text-yellow-500/50 font-bold uppercase mr-2 tracking-tighter">Pro Tip:</span>
+                If a server is slow or not working, try switching. Use <span className="text-slate-400 underline decoration-slate-400/20 underline-offset-2">Brave Browser</span> for an ad-free experience.
+              </p>
+            </div>
+
+
+
             {/* Mobile Info Panel (visible only on smaller screens) */}
+
             <div className="xl:hidden">
               <MobileInfoPanel 
                 details={details}

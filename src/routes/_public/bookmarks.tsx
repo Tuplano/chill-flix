@@ -38,15 +38,16 @@ function BookmarksPage() {
       <div className="relative z-10 container mx-auto px-4 pt-24 space-y-12">
         
         {/* Header */}
-        <div className="flex items-center gap-4 border-b border-white/10 pb-8">
-          <div className="p-3 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
+        <div className="flex items-center gap-4 border-b border-white/10 pb-8 animate-in fade-in slide-in-from-left-4 duration-500">
+          <div className="p-3 bg-yellow-500/10 rounded-2xl border border-yellow-500/20 animate-in fade-in zoom-in duration-700">
             <Bookmark className="w-8 h-8 text-yellow-500" />
           </div>
           <div>
-            <h1 className="text-4xl font-black text-white tracking-tight">Library</h1>
-            <p className="text-slate-400 mt-1">Continue watching your favorite shows</p>
+            <h1 className="text-4xl font-black text-white tracking-tight animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">Library</h1>
+            <p className="text-slate-400 mt-1 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">Continue watching your favorite shows</p>
           </div>
         </div>
+
 
         {/* Continue Watching Section */}
         <div className="space-y-6">
@@ -56,35 +57,48 @@ function BookmarksPage() {
           </h2>
           
           {items.length === 0 ? (
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-12 text-center text-slate-400">
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-12 text-center text-slate-400 animate-in fade-in zoom-in duration-500 delay-300">
                <p className="text-lg mb-4">You haven't watched anything yet.</p>
                <Button asChild className="bg-yellow-500 text-black hover:bg-yellow-400">
                  <Link to="/browse/$mediaType" params={{ mediaType: 'movies' }} search={{ page: 1 }}>Start Browsing</Link>
                </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {items.map((item) => (
-                <ContinueWatchingCard 
-                  key={`${item.mediaType}-${item.id}`} 
-                  item={item} 
-                  onRemove={removeFromContinueWatching} 
-                />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 fill-mode-backwards">
+              {items.map((item, index) => (
+                <div 
+                  key={`${item.mediaType}-${item.id}`}
+                  className="animate-in fade-in zoom-in duration-500 fill-mode-backwards"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <ContinueWatchingCard 
+                    item={item} 
+                    onRemove={removeFromContinueWatching} 
+                  />
+                </div>
               ))}
             </div>
           )}
+
         </div>
 
         {/* Recommendations Section */}
         <div className="pt-8 border-t border-white/10 space-y-6">
-           <h2 className="text-2xl font-bold text-slate-200">
+           <h2 className="text-2xl font-bold text-slate-200 animate-in fade-in slide-in-from-left-4 duration-700">
             {lastWatched ? `Because you watched ${lastWatched.title}` : 'Trending Now'}
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {recommendations?.results?.slice(0, 10).map((item: any) => (
-              <MediaCard key={item.id} item={item} />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 fill-mode-backwards">
+            {recommendations?.results?.slice(0, 10).map((item: any, index: number) => (
+              <div 
+                key={item.id}
+                className="animate-in fade-in zoom-in duration-500 fill-mode-backwards"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <MediaCard item={item} />
+              </div>
             ))}
           </div>
+
         </div>
 
       </div>
