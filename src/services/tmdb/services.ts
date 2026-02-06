@@ -1,6 +1,6 @@
 import { tmdbClient } from './client';
 
-import { MovieResponse, TVShowResponse, Movie, GenreResponse, TVShowDetails, SeasonDetails } from '@/types';
+import { MovieResponse, TVShowResponse, Movie, GenreResponse, TVShowDetails, SeasonDetails, MovieDetails } from '@/types';
 
 // --- Movies ---
 
@@ -24,8 +24,8 @@ export const getUpcomingMovies = async (page: number = 1): Promise<MovieResponse
   return tmdbClient.get<MovieResponse>('/movie/upcoming', { params: { page } });
 };
 
-export const getMovieDetails = async (id: number): Promise<Movie> => {
-  return tmdbClient.get<Movie>(`/movie/${id}`);
+export const getMovieDetails = async (id: number): Promise<MovieDetails> => {
+  return tmdbClient.get<MovieDetails>(`/movie/${id}`);
 };
 
 // --- TV Shows ---

@@ -48,7 +48,6 @@ export const Route = createFileRoute('/_public/watch/$mediaType/$id')({
           queryClient.ensureQueryData(movieRecommendationsQueryOptions(numericId)),
           queryClient.ensureQueryData(similarMoviesQueryOptions(numericId))
         ]);
-
         const combined = [...recommendationsData.results, ...similarData.results];
         const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
 
@@ -94,6 +93,7 @@ function WatchPage() {
 
   const title = 'title' in details ? details.title : details.name;
   const overview = details.overview;
+  const genres = details.genres.map((genre: { name: string }) => genre.name).join(', ');
   const rating = details.vote_average;
   const releaseDate = 'release_date' in details ? details.release_date : details.first_air_date;
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
@@ -195,6 +195,7 @@ function WatchPage() {
                 year={year}
                 releaseDate={releaseDate}
                 overview={overview}
+                genres={genres}
               />
             </div>
 
@@ -273,6 +274,7 @@ function WatchPage() {
               <DesktopInfoPanel 
                 details={details}
                 title={title}
+                genres={genres}
                 type={type}
                 season={season}
                 episode={episode}
@@ -301,7 +303,7 @@ function WatchPage() {
 }
 
 // Desktop Info Panel Component
-function DesktopInfoPanel({ details, title, type, season, episode, rating, year, releaseDate, overview }: any) {
+function DesktopInfoPanel({ details, title, type, season, episode, rating, year, releaseDate, overview, genres }: any) {
   return (
     <>
       {/* Poster */}
@@ -343,6 +345,12 @@ function DesktopInfoPanel({ details, title, type, season, episode, rating, year,
           </Badge>
           <div className="w-1 h-1 rounded-full bg-slate-500" />
           <span className="text-slate-400 text-sm">{releaseDate}</span>
+          {genres && (
+            <>
+              <div className="w-1 h-1 rounded-full bg-slate-500" />
+              <span className="text-slate-400 text-sm">{genres}</span>
+            </>
+          )}
         </div>
 
         {/* Overview */}
@@ -365,7 +373,7 @@ function DesktopInfoPanel({ details, title, type, season, episode, rating, year,
 }
 
 // Mobile Info Panel Component
-function MobileInfoPanel({ details, title, type, season, episode, rating, year, releaseDate, overview }: any) {
+function MobileInfoPanel({ details, title, type, season, episode, rating, year, releaseDate, overview, genres }: any) {
   return (
     <div className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10 space-y-6">
       <div className="flex gap-5">
@@ -390,13 +398,18 @@ function MobileInfoPanel({ details, title, type, season, episode, rating, year, 
             </div>
           )}
 
-          <div className="flex items-center gap-3 text-sm text-slate-400">
-             <div className="flex items-center gap-1.5 text-yellow-400 font-bold">
-              <Star className="w-3.5 h-3.5 fill-current" />
-              {rating.toFixed(1)}
+          <div className="flex flex-col gap-1 text-sm text-slate-400">
+             <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 text-yellow-400 font-bold">
+                <Star className="w-3.5 h-3.5 fill-current" />
+                {rating.toFixed(1)}
+              </div>
+              <span>•</span>
+              <span>{year}</span>
             </div>
-            <span>•</span>
-            <span>{year}</span>
+            {genres && (
+              <span className="text-xs text-slate-500 line-clamp-1">{genres}</span>
+            )}
           </div>
         </div>
       </div>

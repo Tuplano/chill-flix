@@ -24,6 +24,13 @@ export interface Movie {
 
 export interface MovieResponse extends TMDBResponse<Movie> {}
 
+export interface MovieDetails extends Movie {
+  genres: Genre[];
+  runtime: number;
+  status: string;
+  tagline: string;
+}
+
 export interface TVShow {
   backdrop_path: string | null;
   first_air_date: string;
@@ -64,12 +71,25 @@ export interface Episode {
 }
 
 export interface TVShowDetails extends TVShow {
+  created_by: any[];
+  episode_run_time: number[];
   genres: Genre[];
+  homepage: string;
+  in_production: boolean;
+  languages: string[];
+  last_air_date: string;
+  last_episode_to_air: Episode;
+  next_episode_to_air: Episode | null;
+  networks: any[];
   number_of_episodes: number;
   number_of_seasons: number;
+  production_companies: any[];
+  production_countries: any[];
   seasons: Season[];
+  spoken_languages: any[];
   status: string;
   tagline: string;
+  type: string;
 }
 
 export interface SeasonDetails extends Season {
