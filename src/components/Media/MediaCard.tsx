@@ -25,6 +25,7 @@ export function MediaCard({ item, className }: MediaCardProps) {
       to="/watch/$mediaType/$id"
       params={{ mediaType, id: item.id.toString() }}
       search={mediaType === 'tv-shows' ? { season: 1, episode: 1 } : {}}
+      preload="intent"
       className={cn("group block relative cursor-pointer overflow-hidden rounded-md transition-transform hover:scale-105", className)}
     >
       <AspectRatio ratio={2 / 3} className="bg-muted">

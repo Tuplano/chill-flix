@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate, redirect } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import {
   movieDetailsQueryOptions,
@@ -55,7 +56,7 @@ export const Route = createFileRoute('/_public/watch/$mediaType/$id')({
     }
   },
   loaderDeps: ({ search: { season, episode } }) => ({ season, episode }),
-  loader: async ({ params, deps: { season, episode }, context }) => {
+  loader: async ({ params, context }) => {
     const { mediaType, id } = params;
     const { queryClient } = context;
     const numericId = parseInt(id);
@@ -64,37 +65,11 @@ export const Route = createFileRoute('/_public/watch/$mediaType/$id')({
 
     try {
       if (mediaType === 'movies') {
-        const [details, recommendationsData, similarData] = await Promise.all([
-          queryClient.ensureQueryData(movieDetailsQueryOptions(numericId)),
-          queryClient.ensureQueryData(movieRecommendationsQueryOptions(numericId)),
-          queryClient.ensureQueryData(similarMoviesQueryOptions(numericId))
-        ]);
-        const combined = [...recommendationsData.results, ...similarData.results];
-        const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
-
-        return {
-          details,
-          recommendations: unique,
-          type: 'movie' as const,
-          seasonDetails: null
-        };
+        const details = await queryClient.ensureQueryData(movieDetailsQueryOptions(numericId));
+        return { details, type: 'movie' as const };
       } else if (mediaType === 'tv-shows') {
-        const [details, recommendationsData, similarData, seasonDetails] = await Promise.all([
-          queryClient.ensureQueryData(tvShowDetailsQueryOptions(numericId)),
-          queryClient.ensureQueryData(tvShowRecommendationsQueryOptions(numericId)),
-          queryClient.ensureQueryData(similarTVShowsQueryOptions(numericId)),
-          queryClient.ensureQueryData(seasonDetailsQueryOptions(numericId, season || 1))
-        ]);
-
-        const combined = [...recommendationsData.results, ...similarData.results];
-        const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
-
-        return {
-          details,
-          recommendations: unique,
-          type: 'tv' as const,
-          seasonDetails
-        };
+        const details = await queryClient.ensureQueryData(tvShowDetailsQueryOptions(numericId));
+        return { details, type: 'tv' as const };
       } else {
         throw notFound();
       }
@@ -107,10 +82,46 @@ export const Route = createFileRoute('/_public/watch/$mediaType/$id')({
 });
 
 function WatchPage() {
-  const { details, recommendations, type, seasonDetails } = Route.useLoaderData();
+  const { details, type } = Route.useLoaderData();
   const { id } = Route.useParams();
-  const { season, episode } = Route.useSearch();
+  const { season = 1, episode = 1 } = Route.useSearch();
+  const numericId = parseInt(id);
   const navigate = useNavigate();
+
+  // Background fetch recommendations
+  const movieRecs = useQuery({
+    ...movieRecommendationsQueryOptions(numericId),
+    enabled: type === 'movie'
+  });
+  const tvRecs = useQuery({
+    ...tvShowRecommendationsQueryOptions(numericId),
+    enabled: type === 'tv'
+  });
+
+  const movieSimilar = useQuery({
+    ...similarMoviesQueryOptions(numericId),
+    enabled: type === 'movie'
+  });
+  const tvSimilar = useQuery({
+    ...similarTVShowsQueryOptions(numericId),
+    enabled: type === 'tv'
+  });
+
+  const { data: seasonDetails } = useQuery({
+    ...seasonDetailsQueryOptions(numericId, season),
+    enabled: type === 'tv'
+  });
+
+  const recommendations = useMemo(() => {
+    const recs = type === 'movie' ? movieRecs.data : tvRecs.data;
+    const similar = type === 'movie' ? movieSimilar.data : tvSimilar.data;
+
+    const combined = [
+      ...(recs?.results || []),
+      ...(similar?.results || [])
+    ];
+    return Array.from(new Map(combined.map(item => [item.id, item])).values());
+  }, [type, movieRecs.data, tvRecs.data, movieSimilar.data, tvSimilar.data]);
 
   const title = 'title' in details ? details.title : details.name;
   const overview = details.overview;
