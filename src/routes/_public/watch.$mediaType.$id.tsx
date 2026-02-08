@@ -42,6 +42,17 @@ export const Route = createFileRoute('/_public/watch/$mediaType/$id')({
         replace: true,
       });
     }
+
+    if (params.mediaType === 'movies' && (search.season || search.episode)) {
+      throw redirect({
+        to: '.',
+        search: (prev) => {
+          const { season: _, episode: __, ...rest } = prev;
+          return rest;
+        },
+        replace: true,
+      });
+    }
   },
   loaderDeps: ({ search: { season, episode } }) => ({ season, episode }),
   loader: async ({ params, deps: { season, episode }, context }) => {
