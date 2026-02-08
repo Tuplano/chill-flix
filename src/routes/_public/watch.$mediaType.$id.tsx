@@ -1,7 +1,7 @@
-import { createFileRoute, Link, notFound, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, notFound, useNavigate, redirect } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { 
+import {
   movieDetailsQueryOptions,
   tvShowDetailsQueryOptions,
   movieRecommendationsQueryOptions,
@@ -18,22 +18,31 @@ import { MediaRow } from '@/components/Media/MediaRow';
 import { useContinueWatching } from '@/hooks/useContinueWatching';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
 import { Star, ChevronLeft, Bookmark, Share2, ChevronDown } from 'lucide-react';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
 
 const watchPageSearchSchema = z.object({
-  season: z.coerce.number().optional().default(1),
-  episode: z.coerce.number().optional().default(1),
+  season: z.coerce.number().optional(),
+  episode: z.coerce.number().optional(),
 });
 
 export const Route = createFileRoute('/_public/watch/$mediaType/$id')({
   validateSearch: (search) => watchPageSearchSchema.parse(search),
+  beforeLoad: ({ params, search }) => {
+    if (params.mediaType === 'tv-shows' && (!search.season || !search.episode)) {
+      throw redirect({
+        to: '.',
+        search: (prev) => ({ ...prev, season: 1, episode: 1 }),
+        replace: true,
+      });
+    }
+  },
   loaderDeps: ({ search: { season, episode } }) => ({ season, episode }),
   loader: async ({ params, deps: { season, episode }, context }) => {
     const { mediaType, id } = params;
@@ -52,26 +61,26 @@ export const Route = createFileRoute('/_public/watch/$mediaType/$id')({
         const combined = [...recommendationsData.results, ...similarData.results];
         const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
 
-        return { 
-          details, 
-          recommendations: unique, 
+        return {
+          details,
+          recommendations: unique,
           type: 'movie' as const,
-          seasonDetails: null 
+          seasonDetails: null
         };
       } else if (mediaType === 'tv-shows') {
         const [details, recommendationsData, similarData, seasonDetails] = await Promise.all([
           queryClient.ensureQueryData(tvShowDetailsQueryOptions(numericId)),
           queryClient.ensureQueryData(tvShowRecommendationsQueryOptions(numericId)),
           queryClient.ensureQueryData(similarTVShowsQueryOptions(numericId)),
-          queryClient.ensureQueryData(seasonDetailsQueryOptions(numericId, season))
+          queryClient.ensureQueryData(seasonDetailsQueryOptions(numericId, season || 1))
         ]);
 
         const combined = [...recommendationsData.results, ...similarData.results];
         const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
 
-        return { 
-          details, 
-          recommendations: unique, 
+        return {
+          details,
+          recommendations: unique,
           type: 'tv' as const,
           seasonDetails
         };
@@ -99,7 +108,7 @@ function WatchPage() {
   const releaseDate = 'release_date' in details ? details.release_date : details.first_air_date;
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
 
-  
+
   const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'letsembed' | 'autoembed' | 'vidsrc-online' | 'vidstreams'>('vidsrc');
 
   const servers = [
@@ -118,10 +127,10 @@ function WatchPage() {
   const autoEmbedBaseUrl = import.meta.env.VITE_AUTOEMBED_BASE_URL || 'https://player.autoembed.cc/embed/';
   const vidsrcOnlineBaseUrl = import.meta.env.VITE_VIDSRC_ONLINE_BASE_URL || 'https://vidsrc.online/embed/';
   const vidstreamsBaseUrl = import.meta.env.VITE_VIDSTREAMS_BASE_URL || 'https://vidstreams.net/embed/';
-  
+
   const getPlayerUrl = () => {
     if (selectedServer === 'vidsrc') {
-      return type === 'movie' 
+      return type === 'movie'
         ? `${baseUrl}movie?tmdb=${id}&autoplay=1`
         : `${baseUrl}tv?tmdb=${id}&season=${season}&episode=${episode}&autoplay=1&autonext=1`;
     } else if (selectedServer === 'letsembed') {
@@ -165,7 +174,7 @@ function WatchPage() {
         season: type === 'tv' ? season : undefined,
         episode: type === 'tv' ? episode : undefined,
       };
-      
+
       saveProgress(progressItem);
       markAsWatched(progressItem);
     }
@@ -185,7 +194,7 @@ function WatchPage() {
     });
   };
   return (
-    
+
     <div className="min-h-screen bg-black text-white selection:bg-yellow-500/30">
       {/* Background Gradients */}
       <div className="fixed inset-0 z-0 pointer-events-none">
@@ -197,8 +206,8 @@ function WatchPage() {
       {/* Top Navigation / Back Button - Floating Glass */}
       <div className="fixed top-20 left-0 right-0 z-40 pointer-events-none">
         <div className="container mx-auto px-4 py-4">
-          <Link 
-            to="/browse/$mediaType" 
+          <Link
+            to="/browse/$mediaType"
             params={{ mediaType: type === 'movie' ? 'movies' : 'tv-shows' }}
             search={{ page: 1 }}
             className="inline-flex items-center text-slate-300 hover:text-white transition-all gap-2 group bg-black/50 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 pointer-events-auto hover:bg-white/10 hover:border-white/20"
@@ -266,7 +275,7 @@ function WatchPage() {
             {/* Mobile Info Panel (visible only on smaller screens) */}
 
             <div className="xl:hidden">
-              <MobileInfoPanel 
+              <MobileInfoPanel
                 details={details}
                 title={title}
                 type={type}
@@ -288,18 +297,18 @@ function WatchPage() {
                     <h2 className="text-2xl font-bold text-white tracking-tight">Season {season}</h2>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 gap-2 h-9 rounded-full px-4"
                         >
-                          Switch Season 
+                          Switch Season
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="bg-slate-900/95 border-slate-800 text-slate-200 max-h-[300px] overflow-y-auto backdrop-blur-xl">
                         {'seasons' in details && details.seasons.map((s) => (
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             key={s.id}
                             onClick={() => handleSeasonChange(s.season_number)}
                             className={cn(
@@ -317,7 +326,7 @@ function WatchPage() {
                     {seasonDetails.episodes.length} Episodes
                   </Badge>
                 </div>
-                
+
                 <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                   {seasonDetails.episodes.map((ep) => {
                     const watched = isWatched(Number(id), 'tv', season, ep.episode_number);
@@ -330,9 +339,9 @@ function WatchPage() {
                         onClick={() => handleEpisodeChange(ep.episode_number)}
                         className={cn(
                           "h-12 w-full font-bold transition-all duration-300 rounded-xl border-0 relative overflow-hidden",
-                          active 
-                            ? 'bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]' 
-                            : watched 
+                          active
+                            ? 'bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]'
+                            : watched
                               ? 'bg-white/10 text-slate-500 hover:bg-white/15 hover:text-slate-400'
                               : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
                         )}
@@ -352,7 +361,7 @@ function WatchPage() {
           {/* Right Side: Info Panel (Desktop) */}
           <div className="hidden xl:block">
             <div className="sticky top-28 space-y-6 animate-in fade-in slide-in-from-right-8 duration-700 delay-200">
-              <DesktopInfoPanel 
+              <DesktopInfoPanel
                 details={details}
                 title={title}
                 genres={genres}
@@ -372,9 +381,9 @@ function WatchPage() {
       {/* Recommendations Section */}
       <div className="border-t border-white/5 bg-black/40 backdrop-blur-xl relative z-10">
         <div className="container mx-auto px-4 py-16">
-          <MediaRow 
-            title="You may also like" 
-            items={recommendations} 
+          <MediaRow
+            title="You may also like"
+            items={recommendations}
             mediaType={type === 'movie' ? 'movies' : 'tv-shows'}
           />
         </div>
@@ -389,13 +398,13 @@ function DesktopInfoPanel({ details, title, type, season, episode, rating, year,
     <>
       {/* Poster */}
       <div className="rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-black/50 aspect-[2/3] relative group mb-6">
-        <img 
-          src={`https://image.tmdb.org/t/p/w500${details.poster_path}`} 
+        <img
+          src={`https://image.tmdb.org/t/p/w500${details.poster_path}`}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
-        
+
         {/* Rating Overlay */}
         <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl px-3 py-1.5 flex items-center gap-1.5">
           <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
@@ -460,8 +469,8 @@ function MobileInfoPanel({ details, title, type, season, episode, rating, year, 
       <div className="flex gap-5">
         {/* Poster Thumbnail */}
         <div className="w-28 flex-shrink-0 rounded-xl overflow-hidden border border-white/10 shadow-lg aspect-[2/3]">
-          <img 
-            src={`https://image.tmdb.org/t/p/w200${details.poster_path}`} 
+          <img
+            src={`https://image.tmdb.org/t/p/w200${details.poster_path}`}
             alt={title}
             className="w-full h-full object-cover"
           />
@@ -472,15 +481,15 @@ function MobileInfoPanel({ details, title, type, season, episode, rating, year, 
           <h1 className="text-xl font-bold text-white leading-tight line-clamp-2">
             {title}
           </h1>
-          
+
           {type === 'tv' && (
-             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 font-bold text-xs">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 font-bold text-xs">
               S{season} E{episode}
             </div>
           )}
 
           <div className="flex flex-col gap-1 text-sm text-slate-400">
-             <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5 text-yellow-400 font-bold">
                 <Star className="w-3.5 h-3.5 fill-current" />
                 {rating.toFixed(1)}
