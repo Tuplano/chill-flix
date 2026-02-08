@@ -120,20 +120,20 @@ function WatchPage() {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
 
 
-  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'letsembed' | 'autoembed' | 'vidsrc-online' | 'vidstreams'>('vidsrc');
+  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'letsembed' | 'autoembed' | 'vidsrc-online' | 'vidstreams'>('letsembed');
 
   const servers = [
-    { id: 'vidsrc' as const, name: 'Server 1' },
-    { id: 'letsembed' as const, name: 'Server 2' },
-    { id: 'autoembed' as const, name: 'Server 3' },
-    { id: 'vidsrc-online' as const, name: 'Server 4' },
-    { id: 'vidstreams' as const, name: 'Server 5' },
+    // { id: 'vidsrc' as const, name: 'Server 1' },
+    { id: 'letsembed' as const, name: 'Server 1' },
+    { id: 'autoembed' as const, name: 'Server 2' },
+    { id: 'vidsrc-online' as const, name: 'Server 3' },
+    { id: 'vidstreams' as const, name: 'Server 4' },
   ];
 
 
 
 
-  const baseUrl = import.meta.env.VITE_PLAYER_BASE_URL || 'https://vidsrc-embed.ru/embed/';
+  const baseUrl = import.meta.env.VITE_PLAYER_BASE_URL || 'https://vidsrcme.ru//embed/';
   const letsEmbedBaseUrl = import.meta.env.VITE_LETSEMBED_BASE_URL || 'https://letsembed.cc/embed/';
   const autoEmbedBaseUrl = import.meta.env.VITE_AUTOEMBED_BASE_URL || 'https://player.autoembed.cc/embed/';
   const vidsrcOnlineBaseUrl = import.meta.env.VITE_VIDSRC_ONLINE_BASE_URL || 'https://vidsrc.online/embed/';
@@ -142,8 +142,8 @@ function WatchPage() {
   const getPlayerUrl = () => {
     if (selectedServer === 'vidsrc') {
       return type === 'movie'
-        ? `${baseUrl}movie?tmdb=${id}&autoplay=1`
-        : `${baseUrl}tv?tmdb=${id}&season=${season}&episode=${episode}&autoplay=1&autonext=1`;
+        ? `${baseUrl}movie/${id}`
+        : `${baseUrl}tv/${id}/${season}/${episode}`;
     } else if (selectedServer === 'letsembed') {
       return type === 'movie'
         ? `${letsEmbedBaseUrl}movie/?id=${id}`
