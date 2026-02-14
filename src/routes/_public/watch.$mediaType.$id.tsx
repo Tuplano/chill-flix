@@ -135,10 +135,10 @@ function WatchPage() {
 
   const servers = [
     // { id: 'vidsrc' as const, name: 'Server 1' },
-    { id: 'letsembed' as const, name: 'Server 1' },
-    { id: 'autoembed' as const, name: 'Server 2' },
-    { id: 'vidsrc-online' as const, name: 'Server 3' },
-    { id: 'vidstreams' as const, name: 'Server 4' },
+    // { id: 'letsembed' as const, name: 'Server 1' },
+    { id: 'autoembed' as const, name: 'Server 1' },
+    { id: 'vidsrc-online' as const, name: 'Server 2' },
+    { id: 'vidstreams' as const, name: 'Server 3' },
   ];
 
 
