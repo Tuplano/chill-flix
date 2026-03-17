@@ -68,19 +68,20 @@ export function MediaRow({ title, items, className, autoPlay = false, mediaType 
           opts={{
             align: "start",
             loop: true,
+            dragFree: true,
           }}
           plugins={autoPlay ? [plugin.current] : []}
           className="w-full"
         >
-          <CarouselContent className="-ml-2 md:-ml-4">
+          <CarouselContent className="-ml-2 md:-ml-3">
             {items.map((item) => (
-              <CarouselItem key={item.id} className="pl-2 md:pl-4 basis-1/2 xs:basis-1/3 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
+              <CarouselItem key={item.id} className="pl-2 md:pl-3 basis-[42%] sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
                 <MediaCard item={item} />
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="left-0 md:-left-4 hidden md:flex" />
-          <CarouselNext className="right-0 md:-right-4 hidden md:flex" />
+          <CarouselPrevious className="-left-3 md:-left-5 bg-black/70 hover:bg-black border-white/10 text-white hover:text-white" />
+          <CarouselNext className="-right-3 md:-right-5 bg-black/70 hover:bg-black border-white/10 text-white hover:text-white" />
         </Carousel>
       </div>
     </div>
