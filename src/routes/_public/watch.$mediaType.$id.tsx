@@ -33,6 +33,8 @@ const watchPageSearchSchema = z.object({
   episode: z.coerce.number().optional(),
 });
 
+type ServerId = 'autoembed' | 'vidsrc-online' | 'vidstreams' | 'vidsrc' | 'letsembed';
+
 export const Route = createFileRoute('/_public/watch/$mediaType/$id')({
   validateSearch: (search) => watchPageSearchSchema.parse(search),
   beforeLoad: ({ params, search }) => {
@@ -131,14 +133,14 @@ function WatchPage() {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
 
 
-  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'letsembed' | 'autoembed' | 'vidsrc-online' | 'vidstreams'>('autoembed');
+  const [selectedServer, setSelectedServer] = useState<ServerId>('autoembed');
 
   const servers = [
-    // { id: 'vidsrc' as const, name: 'Server 1' },
-    // { id: 'letsembed' as const, name: 'Server 1' },
     { id: 'autoembed' as const, name: 'Server 1' },
     { id: 'vidsrc-online' as const, name: 'Server 2' },
     { id: 'vidstreams' as const, name: 'Server 3' },
+    { id: 'vidsrc' as const, name: 'Server 4' },
+    { id: 'letsembed' as const, name: 'Server 5' },
   ];
 
 
