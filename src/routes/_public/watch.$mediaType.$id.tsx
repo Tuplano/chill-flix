@@ -131,7 +131,7 @@ function WatchPage() {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
 
 
-  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'letsembed' | 'autoembed' | 'vidsrc-online' | 'vidstreams'>('letsembed');
+  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'letsembed' | 'autoembed' | 'vidsrc-online' | 'vidstreams'>('autoembed');
 
   const servers = [
     // { id: 'vidsrc' as const, name: 'Server 1' },
